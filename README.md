@@ -62,10 +62,10 @@ Amounts are INR. Banking accepts `transfer`; e-commerce accepts `purchase` and `
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r backend/requirements-ai.txt
 $env:GEMINI_API_KEY = 'your-key'
-$env:GEMINI_MODEL = 'gemini-2.5-flash'
+$env:GEMINI_MODEL = 'gemini-3.8-flash'
 ```
 
-Restart the backend. Environment variables are read from the process; `.env.example` is a reference, not automatically loaded. Agents use a read-only backend evidence tool. ADK SequentialAgent coordinates investigation, relationship, policy and report agents. Pydantic validates the report; ProofGuard checks its structured atomic claims. No policy documents are included, and the policy agent must state that limitation. Model and prompt versions, latency, available token usage and errors are recorded. Cost is unavailable rather than estimated.
+Restart the backend. The backend loads the root `.env` file automatically without overriding existing process environment variables. `.env.example` documents the supported settings. Never commit `.env`. Agents use a read-only backend evidence tool. ADK SequentialAgent coordinates investigation, relationship, policy and report agents. Pydantic validates the report; ProofGuard checks its structured atomic claims. No policy documents are included, and the policy agent must state that limitation. Model and prompt versions, latency, available token usage and errors are recorded. Cost is unavailable rather than estimated.
 
 **Live Gemini execution is unverified until authorized credentials and the optional ADK dependencies are configured. Calling Gemini can incur charges.** No billable services were enabled by this project setup.
 
@@ -89,3 +89,5 @@ A repository protocol isolates SQLite for a future Firestore implementation. **F
 The Dockerfile and Firebase configuration prepare deployment without enabling services. Supply a Firebase project and a backend route before deploying. Use authenticated Cloud Run access, Secret Manager, configured CORS, durable storage and budget controls. SQLite inside Cloud Run is ephemeral and must be replaced before a durable hosted deployment. No public GitHub remote, cloud resources or hackathon deliverables have been created.
 
 See `docs/architecture.md` for module boundaries and next steps.
+
+

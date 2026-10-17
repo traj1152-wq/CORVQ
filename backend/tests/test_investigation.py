@@ -103,3 +103,18 @@ def test_no_findings_is_valid(client):
 def test_cloud_auth_fail_closed(client,monkeypatch):
     monkeypatch.setenv('K_SERVICE','corvq')
     assert client.get('/api/investigations').status_code==503
+
+def test_ai_endpoint_verifies_generated_claims(client,monkeypatch):
+    import backend.app.main as main
+    monkeypatch.setattr(main,'configuration',lambda: {'configured':True})
+    async def fake_workflow(case):
+        return {'summary':'Offline integration fixture','hypotheses':[], 'recommendations':[],
+            'claims':[{'evidence_id':'TX-001','field':'amount','value':145000,'text':'Supported amount'},
+                      {'evidence_id':'TX-001','field':'amount','value':1,'text':'Conflicting amount'}],
+            'metrics':{'model':'offline-fixture','latency_ms':1,'prompt_version':'test'}}
+    monkeypatch.setattr(main,'run_agents',fake_workflow)
+    case=create(client)
+    result=client.post(f"/api/investigations/{case['id']}/ai")
+    assert result.status_code==200
+    assert [c['status'] for c in result.json()['claims']]==['verified','unsupported']
+    assert client.get(f"/api/investigations/{case['id']}/audit").json()[-1]['action']=='ai_completed'

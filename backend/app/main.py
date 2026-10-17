@@ -2,6 +2,10 @@ import json
 import logging
 import os
 import secrets
+import asyncio
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parents[2] / '.env', override=False)
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -115,9 +119,9 @@ async def ai(identifier: str, repo=Depends(repository)):
     if not configuration()['configured']:
         raise HTTPException(503, 'Gemini unconfigured: install requirements-ai.txt and set GEMINI_API_KEY')
     try:
-        output = await run_agents(case)
-    except Exception:
-        log.exception('AI investigation failed')
+        output = await asyncio.wait_for(run_agents(case), timeout=180)
+    except Exception as exc:
+        log.error('AI investigation failed: %s', type(exc).__name__)
         repo.audit(identifier, 'ai_error', {'prompt_version': configuration()['prompt_version']})
         raise HTTPException(502, 'AI workflow failed. Check backend logs; no AI report was saved.')
     case['ai'] = output
@@ -131,3 +135,5 @@ def report(identifier: str, repo=Depends(repository)):
     case = get_case(identifier, repo)
     case['audit'] = repo.events(identifier)
     return Response(json.dumps(case, indent=2), media_type='application/json', headers={'Content-Disposition': f'attachment; filename="corvq-{identifier}.json"'})
+
+
