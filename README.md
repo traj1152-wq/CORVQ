@@ -82,11 +82,11 @@ Tests cover both adapters, counterfactual recalculation, factual verification, v
 
 ## Security and deployment status
 
-Development defaults to loopback and no authentication. Set `CORVQ_API_TOKEN` for authenticated API access; the UI's Access settings stores it in sessionStorage. This is a shared development token, not production identity or RBAC. Analyst names are self-reported. Cloud Run fails closed if no API token is configured.
+Development defaults to loopback and no authentication. Set `CORVQ_API_TOKEN` for authenticated API access; the UI's Access settings stores it in sessionStorage. This is a shared development token, not production identity or RBAC. Analyst names are self-reported. Cloud Run fails closed unless Firebase authentication and Firestore storage are selected.
 
-A repository protocol isolates SQLite for a future Firestore implementation. **Firestore, user identities/RBAC, tamper-resistant audit storage, rate limiting, distributed transactions, authenticated human identities, production evaluation, and hosted deployment are not implemented.** Current audit storage is suitable for a local MVP, not regulated production. Concurrent review updates can overwrite each other; use one analyst at a time.
+A repository protocol supports SQLite and an explicitly selected Firestore implementation. See [production setup](docs/production-setup.md). **Firebase identity/RBAC and Firestore storage adapters are implemented and tested offline; live cloud configuration is pending.** Tamper-resistant audit storage, rate limiting, cross-document atomic auditing, production evaluation and hosted deployment remain incomplete. Current audit storage is suitable for a local MVP, not regulated production. Revision checks reject conflicting concurrent updates with HTTP 409.
 
-The Dockerfile and Firebase configuration prepare deployment without enabling services. Supply a Firebase project and a backend route before deploying. Use authenticated Cloud Run access, Secret Manager, configured CORS, durable storage and budget controls. SQLite inside Cloud Run is ephemeral and must be replaced before a durable hosted deployment. No public GitHub remote, cloud resources or hackathon deliverables have been created.
+The Dockerfile and Firebase configuration prepare deployment without enabling services. Supply a Firebase project and a backend route before deploying. Use authenticated Cloud Run access, Secret Manager, configured CORS, durable storage and budget controls. SQLite is rejected on Cloud Run; configure the provided Firestore adapter for hosted persistence. No public GitHub remote, cloud resources or hackathon deliverables have been created.
 
 See `docs/architecture.md` for module boundaries and next steps.
 

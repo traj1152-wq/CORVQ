@@ -5,6 +5,9 @@ import sqlite3
 from datetime import datetime, timezone
 from typing import Protocol
 
+def summary(case):
+    return {k:v for k,v in case.items() if k not in ('records','graph','claims','ai','reviews')}
+
 class Repository(Protocol):
     def save(self, investigation: dict) -> None: ...
     def get(self, identifier: str) -> dict | None: ...
@@ -21,8 +24,17 @@ class SQLiteRepository:
     def connect(self):
         return sqlite3.connect(self.path, timeout=15)
     def save(self, investigation):
+        from fastapi import HTTPException
         with self.connect() as db:
-            db.execute('INSERT OR REPLACE INTO investigations VALUES (?,?)', (investigation['id'], json.dumps(investigation)))
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT body FROM investigations WHERE id=?',(investigation['id'],)).fetchone()
+            current=json.loads(row[0]) if row else {}
+            expected=investigation.get('revision',0)
+            if current.get('revision',0)!=expected:
+                raise HTTPException(409,'Investigation changed; reload and retry')
+            updated={**investigation,'revision':expected+1}
+            db.execute('INSERT OR REPLACE INTO investigations VALUES (?,?)', (investigation['id'], json.dumps(updated)))
+        investigation['revision']=expected+1
     def get(self, identifier):
         with self.connect() as db:
             row = db.execute('SELECT body FROM investigations WHERE id=?', (identifier,)).fetchone()
@@ -30,7 +42,7 @@ class SQLiteRepository:
     def list(self):
         with self.connect() as db:
             rows = db.execute('SELECT body FROM investigations ORDER BY rowid DESC LIMIT 100').fetchall()
-        return [{k:v for k,v in json.loads(row[0]).items() if k not in ('records','graph','claims')} for row in rows]
+        return [summary(json.loads(row[0])) for row in rows]
     def audit(self, identifier, action, detail):
         with self.connect() as db:
             db.execute('INSERT INTO audit (investigation_id,at,action,detail) VALUES (?,?,?,?)',
@@ -40,3 +52,13 @@ class SQLiteRepository:
             rows = db.execute('SELECT seq,at,action,detail FROM audit WHERE investigation_id=? ORDER BY seq', (identifier,)).fetchall()
         return [dict(seq=r[0], at=r[1], action=r[2], detail=json.loads(r[3])) for r in rows]
 
+
+class ActorRepository:
+    """Attach verified identity to every audit event without changing storage contracts."""
+    def __init__(self, repository, principal):
+        self.repository=repository
+        self.principal=principal
+    def __getattr__(self, name):
+        return getattr(self.repository,name)
+    def audit(self, identifier, action, detail):
+        self.repository.audit(identifier,action,{**detail,'actor_uid':self.principal.uid,'actor_role':self.principal.role})

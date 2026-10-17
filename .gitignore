@@ -5,3 +5,8 @@ __pycache__/
 .pytest_cache/
 *.db
 .env
+
+.env.*
+!.env.example
+!frontend/.env.example
+*service-account*.json

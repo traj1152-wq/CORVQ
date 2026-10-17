@@ -1,0 +1,6 @@
+-r requirements.txt
+firebase-admin>=6.5,<7
+google-cloud-firestore>=2.19,<3
+
+google-cloud-storage>=2.18,<3
+

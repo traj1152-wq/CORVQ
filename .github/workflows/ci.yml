@@ -13,6 +13,16 @@ jobs:
       - run: pip install -r backend/requirements.txt pip-audit
       - run: pytest -q
       - run: pip-audit -r backend/requirements.txt
+  cloud-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements-cloud.txt pip-audit
+      - run: pytest -q backend/tests/test_security.py backend/tests/test_firestore.py
+      - run: pip-audit -r backend/requirements-cloud.txt
   frontend:
     runs-on: ubuntu-latest
     steps:

@@ -17,3 +17,7 @@ The React workspace displays real API results; it never supplies fabricated inve
 - Cloud deployment and hackathon deliverables require their own verified milestones.
 
 This code intentionally performs no account enforcement and no seller enforcement. Rule thresholds are synthetic demonstration settings. Cycle enumeration is bounded to length four and 100 returned cycles; it is not exhaustive fraud detection.
+
+## Identity and storage update
+
+Firebase identity validation, server role checks, workspace isolation and verified reviewer identity are now implemented. Firestore persistence and optimistic revision checks are implemented. Both repositories now reject stale saves. See production-setup.md for actual configuration requirements and verification limits; earlier milestone notes above describe the initial MVP.

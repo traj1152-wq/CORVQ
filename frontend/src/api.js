@@ -1,5 +1,6 @@
+import {accessToken} from './auth.js';
 export async function request(path, options = {}) {
-  const token = sessionStorage.getItem('corvq-token');
+  const token = await accessToken();
   const response = await fetch(`/api${path}`, {...options, headers: {'Content-Type': 'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {}), ...options.headers}});
   if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail || 'Request failed')); }
   return response.json();
