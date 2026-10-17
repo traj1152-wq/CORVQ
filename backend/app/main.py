@@ -16,9 +16,11 @@ from .auth import authorize, analyst, reviewer, auth_mode, Principal
 from .proofguard import verify
 from .samples import samples
 from .agents import configuration, run_agents
+from .limits import RequestLimits
 
 log = logging.getLogger('corvq')
 app = FastAPI(title='CORVQ Investigation API', version='0.1.0')
+app.add_middleware(RequestLimits)
 app.add_middleware(CORSMiddleware, allow_origins=[os.getenv('CORVQ_ORIGIN', 'http://localhost:5173'), 'http://127.0.0.1:5173'], allow_methods=['GET','POST'], allow_headers=['Authorization','Content-Type'])
 def repository(principal: Principal = Depends(authorize)):
     storage=os.getenv('CORVQ_STORAGE','sqlite')
@@ -154,5 +156,6 @@ def report(identifier: str, repo=Depends(repository)):
     case = get_case(identifier, repo)
     case['audit'] = repo.events(identifier)
     return Response(json.dumps(case, indent=2), media_type='application/json', headers={'Content-Disposition': f'attachment; filename="corvq-{identifier}.json"'})
+
 
 

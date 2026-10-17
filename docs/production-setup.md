@@ -33,3 +33,24 @@ Offline tests mock the verified Firebase identity boundary; they do not prove li
 Audit documents are append-only through this API but are mutable by privileged cloud operators. Case save and audit append are separate operations, so cross-document atomic auditing is not guaranteed. Multi-tenant storage is isolated at the server workspace boundary; this is not a formal security certification. Rate limits, strict HTTP payload limits, account provisioning, MFA policy, immutable archival and production rollout checks are still needed.
 
 Cloud image: `docker build --build-arg INSTALL_CLOUD=true --build-arg INSTALL_AI=true -t corvq .`
+
+## Request safeguards
+
+The API now enforces a 2 MiB maximum request body, including chunked requests. Defaults: 120 API requests per minute per direct peer IP and 5 AI requests per minute. Limits return HTTP 429 with Retry-After; oversized uploads return 413. Configure CORVQ_MAX_REQUEST_BYTES, CORVQ_REQUESTS_PER_MINUTE and CORVQ_AI_REQUESTS_PER_MINUTE as needed.
+
+These counters are process-local, so aggregate quotas across Cloud Run instances require a gateway or shared limiter. Proxy peers may share a bucket. Untrusted forwarded-IP headers cannot bypass limits. The API adds no-store, no-referrer and nosniff response headers. Cloud budgets and provider quotas must still be configured before deployment.
+
+Run `python scripts/check_readiness.py` for a read-only configuration report. It prints only presence checks, never keys. It does not validate billing, IAM or live connectivity. `scripts/admin_access.py` prepares an explicit role/workspace assignment and makes no API calls unless --apply is supplied. Each actual permission grant must be approved; use trusted administrator credentials and never put those credentials in the repository.
+
+## Deployment sequence (requires project and authorization)
+
+1. Create/select the CORVQ Firebase project without enabling billing. Record the project ID.
+2. Register a web app; save only its public Firebase web API key in frontend/.env.
+3. Enable the email/password provider and create verified analyst/reviewer accounts. Assign approved custom claims using the dry-run-first admin helper.
+4. Select a Firestore location deliberately before creating the database. Keep direct browser access denied. Configure server Application Default Credentials for local live tests.
+5. Validate user sign-in, reviewer restrictions, workspace separation, durable save/reload and token revocation against the live project.
+6. Review Cloud Run/Firebase billing requirements and approve budget, APIs, service identity/IAM and deployment. No billing or permission changes happen automatically.
+7. Build the cloud image with INSTALL_CLOUD=true and INSTALL_AI=true. Supply GEMINI_API_KEY from Secret Manager, CORVQ_AUTH_MODE=firebase, CORVQ_STORAGE=firestore and CORVQ_FIREBASE_PROJECT. Configure frontend origin and conservative scaling.
+8. Deploy backend service corvq-api in the region in firebase.json; deploy frontend hosting and firestore.rules. Test the public URL before marking submission complete.
+
+No CLI provisioning commands have been run yet. Cloud account state, required billing tier, quotas, costs and IAM must be checked against the selected project at deployment time.
