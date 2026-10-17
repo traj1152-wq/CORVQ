@@ -66,3 +66,9 @@ No CLI provisioning commands have been run yet. Cloud account state, required bi
 - Local backend remains in development/SQLite mode until credentials and real account access are validated; the live Firestore database being present does not mean app persistence has switched.
 
 Email verification can be requested from CORVQ Access settings using Verify Firebase email. The account owner enters their password locally; Firebase receives credentials directly, sends its verification email, and the temporary sign-in session is discarded. Do not send passwords or verification links through chat. Role assignment remains blocked by the admin helper until Firebase reports email_verified=true.
+
+## Live identity and storage validation — 2026-10-17
+
+Google Application Default Credentials were configured locally through the account owner's consent flow. Firebase confirmed that the approved demo account is email-verified and enabled. Its CORVQ custom claims were assigned as role admin in workspace corvq, and prior refresh sessions were revoked. The backend now uses CORVQ_AUTH_MODE=firebase, CORVQ_STORAGE=firestore and GOOGLE_CLOUD_QUOTA_PROJECT=corvq-493d5 in the ignored local .env.
+
+A clearly labelled synthetic banking investigation was saved to Firestore and loaded through a fresh repository instance; all eight records and its audit event were retrieved. Browser login with the refreshed role token is the next validation step. Service-account keys were not generated. Cloud billing and Cloud Run deployment remain disabled/pending.
