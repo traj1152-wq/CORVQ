@@ -54,3 +54,13 @@ Run `python scripts/check_readiness.py` for a read-only configuration report. It
 8. Deploy backend service corvq-api in the region in firebase.json; deploy frontend hosting and firestore.rules. Test the public URL before marking submission complete.
 
 No CLI provisioning commands have been run yet. Cloud account state, required billing tier, quotas, costs and IAM must be checked against the selected project at deployment time.
+
+## Live Firebase setup — 2026-10-17
+
+- Firebase project: corvq-493d5 (CORVQ), Spark plan.
+- Web app: CORVQ Web, registered. Public web API configuration is stored in ignored frontend/.env.
+- Email/password provider: enabled; passwordless sign-in remains off.
+- Default Firestore database: created in asia-south1 (Mumbai), production mode denying direct client reads/writes.
+- Paid backup schedules and billing upgrades: not enabled.
+- Actual user provisioning, approved role grants, server Application Default Credentials, live sign-in/revocation validation and backend durable writes: pending.
+- Local backend remains in development/SQLite mode until credentials and real account access are validated; the live Firestore database being present does not mean app persistence has switched.
