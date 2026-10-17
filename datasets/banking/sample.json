@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "industry": "banking",
+  "records": [
+    {
+      "id": "TX-001",
+      "source": "ACC-1042",
+      "target": "ACC-2087",
+      "amount": 145000,
+      "timestamp": "2026-10-17T09:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-002",
+      "source": "ACC-2087",
+      "target": "ACC-3091",
+      "amount": 142500,
+      "timestamp": "2026-10-17T10:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-003",
+      "source": "ACC-3091",
+      "target": "ACC-1042",
+      "amount": 140000,
+      "timestamp": "2026-10-17T11:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-004",
+      "source": "ACC-4103",
+      "target": "ACC-5028",
+      "amount": 7200,
+      "timestamp": "2026-10-17T12:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-005",
+      "source": "ACC-5028",
+      "target": "ACC-6014",
+      "amount": 3450,
+      "timestamp": "2026-10-17T13:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-006",
+      "source": "ACC-1042",
+      "target": "ACC-4103",
+      "amount": 12500,
+      "timestamp": "2026-10-17T14:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-007",
+      "source": "ACC-6014",
+      "target": "ACC-7021",
+      "amount": 18900,
+      "timestamp": "2026-10-17T15:00:00Z",
+      "kind": "transfer"
+    },
+    {
+      "id": "TX-008",
+      "source": "ACC-7021",
+      "target": "ACC-5028",
+      "amount": 5300,
+      "timestamp": "2026-10-17T16:00:00Z",
+      "kind": "transfer"
+    }
+  ]
+}

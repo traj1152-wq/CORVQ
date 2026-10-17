@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "industry": "ecommerce",
+  "records": [
+    {
+      "id": "ORD-001",
+      "source": "BUY-100",
+      "target": "SELL-201",
+      "amount": 4200,
+      "timestamp": "2026-10-17T09:00:00Z",
+      "kind": "purchase"
+    },
+    {
+      "id": "ORD-002",
+      "source": "BUY-100",
+      "target": "SELL-201",
+      "amount": 4200,
+      "timestamp": "2026-10-17T10:00:00Z",
+      "kind": "purchase"
+    },
+    {
+      "id": "ORD-003",
+      "source": "BUY-100",
+      "target": "SELL-201",
+      "amount": 4200,
+      "timestamp": "2026-10-17T11:00:00Z",
+      "kind": "purchase"
+    },
+    {
+      "id": "REF-001",
+      "source": "SELL-201",
+      "target": "BUY-100",
+      "amount": 4200,
+      "timestamp": "2026-10-17T12:00:00Z",
+      "kind": "refund"
+    },
+    {
+      "id": "REF-002",
+      "source": "SELL-201",
+      "target": "BUY-102",
+      "amount": 3800,
+      "timestamp": "2026-10-17T13:00:00Z",
+      "kind": "refund"
+    },
+    {
+      "id": "REF-003",
+      "source": "SELL-201",
+      "target": "BUY-103",
+      "amount": 5600,
+      "timestamp": "2026-10-17T14:00:00Z",
+      "kind": "refund"
+    },
+    {
+      "id": "ORD-004",
+      "source": "BUY-104",
+      "target": "SELL-202",
+      "amount": 2300,
+      "timestamp": "2026-10-17T15:00:00Z",
+      "kind": "purchase"
+    },
+    {
+      "id": "ORD-005",
+      "source": "BUY-105",
+      "target": "SELL-203",
+      "amount": 8100,
+      "timestamp": "2026-10-17T16:00:00Z",
+      "kind": "purchase"
+    }
+  ]
+}
