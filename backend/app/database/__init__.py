@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import os
 import sqlite3
@@ -38,3 +39,4 @@ class SQLiteRepository:
         with self.connect() as db:
             rows = db.execute('SELECT seq,at,action,detail FROM audit WHERE investigation_id=? ORDER BY seq', (identifier,)).fetchall()
         return [dict(seq=r[0], at=r[1], action=r[2], detail=json.loads(r[3])) for r in rows]
+
