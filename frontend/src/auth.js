@@ -16,7 +16,7 @@ export async function signIn(email,password) {
 }
 export function signOut(){session=null;sessionStorage.removeItem('corvq-token');}
 export async function accessToken(){
-  if(!session) return firebaseEnabled()?null:sessionStorage.getItem('corvq-token');
+  if(!session) return sessionStorage.getItem('corvq-token');
   if(session.expires-Date.now()<60000){
     try{
       const data=await exchange(`https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(key())}`,{grant_type:'refresh_token',refresh_token:session.refresh},true);
@@ -25,3 +25,4 @@ export async function accessToken(){
   }
   return session.token;
 }
+

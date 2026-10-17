@@ -36,12 +36,13 @@ function App(){
  {tab==='Audit trail'&&<section className="panel"><div className="panel-heading"><div><h2>Investigation audit trail</h2><p>Recorded analysis, verification, counterfactuals, and human decisions.</p></div></div>{audit.map(e=><div className="audit-row" key={e.seq}><span className="audit-icon"><CheckCheck size={17}/></span><div><strong>{e.action.replaceAll('_',' ')}</strong><p>{JSON.stringify(e.detail)}</p></div><time>{new Date(e.at).toLocaleString()}</time></div>)}</section>}
  </>}
  <footer><span><ShieldCheck size={14}/>CORVQ · One intelligence engine. Every industry.</span><span>Synthetic evidence only <span>·</span> Human-led decisions</span></footer></div></main>
- {accessOpen&&<AccessDialog onClose={()=>setAccessOpen(false)} onChange={async next=>{setUser(next);setCase(null);setHistory([]);if(next)await refresh();}}/>}
+ {accessOpen&&<AccessDialog mode={health?.authentication||'local'} onClose={()=>setAccessOpen(false)} onChange={async next=>{setUser(next);setCase(null);setHistory([]);if(next)await refresh();}}/>}
  {modal&&<div className="modal-backdrop" onClick={()=>setModal(false)}><section className="modal panel" role="dialog" aria-modal="true" aria-label="Investigation history" onClick={e=>e.stopPropagation()}><div className="panel-heading"><div><h2>Investigation history</h2><p>Locally persisted investigations and scenarios.</p></div><button onClick={()=>setModal(false)} aria-label="Close history"><X size={20}/></button></div>{history.length?history.map(c=><button className="history-row" key={c.id} onClick={()=>work('Loading investigation',async()=>{setCase(await request(`/investigations/${c.id}`));setIndustry(c.industry);setTab('Overview');setModal(false);})}><div><strong>{c.name}</strong><small>{c.industry} · {new Date(c.created_at).toLocaleString()}</small></div><span className="tag">{c.status.replaceAll('_',' ')}</span><ArrowRight size={16}/></button>):<div className="inner-empty">No investigations yet. Load a sample to begin.</div>}</section></div>}
  {busy&&<div className="busy-toast" role="status"><Loader2 className="spin" size={17}/>{busy}…</div>}
  </div>;
 }
 createRoot(document.getElementById('root')).render(<App/>);
+
 
 
 
