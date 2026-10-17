@@ -1,9 +1,21 @@
 import {accessToken} from './auth.js';
 export async function request(path, options = {}) {
   const token = await accessToken();
-  const response = await fetch(`/api${path}`, {...options, headers: {'Content-Type': 'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {}), ...options.headers}});
-  if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail || 'Request failed')); }
-  return response.json();
+  let response;
+  try {
+    response = await fetch(`/api${path}`, {...options, headers: {'Content-Type': 'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {}), ...options.headers}});
+  } catch {
+    throw new Error('Cannot reach CORVQ. Check that the backend is running on port 8000.');
+  }
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    const detail = body?.detail;
+    const error = new Error(typeof detail === 'string' ? detail : Array.isArray(detail) ? detail.map(e => `${e.loc?.join('.') || 'Input'}: ${e.msg}`).join('; ') : `Request failed (${response.status}). Check the backend connection.`);
+    error.status = response.status;
+    throw error;
+  }
+  if (body === null) throw new Error('The server returned an invalid response. Check the API proxy configuration.');
+  return body;
 }
 export const post = (path, body) => request(path, {method:'POST', body:JSON.stringify(body)});
 export function graphLayout(graph) {
