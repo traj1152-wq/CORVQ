@@ -26,3 +26,11 @@ export async function accessToken(){
   return session.token;
 }
 
+
+export async function sendVerification(email,password){
+  try{
+    await signIn(email,password);
+    const idToken=await accessToken();
+    await exchange(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(key())}`,{requestType:'VERIFY_EMAIL',idToken});
+  }finally{signOut();}
+}

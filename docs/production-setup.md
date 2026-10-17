@@ -64,3 +64,5 @@ No CLI provisioning commands have been run yet. Cloud account state, required bi
 - Paid backup schedules and billing upgrades: not enabled.
 - Actual user provisioning, approved role grants, server Application Default Credentials, live sign-in/revocation validation and backend durable writes: pending.
 - Local backend remains in development/SQLite mode until credentials and real account access are validated; the live Firestore database being present does not mean app persistence has switched.
+
+Email verification can be requested from CORVQ Access settings using Verify Firebase email. The account owner enters their password locally; Firebase receives credentials directly, sends its verification email, and the temporary sign-in session is discarded. Do not send passwords or verification links through chat. Role assignment remains blocked by the admin helper until Firebase reports email_verified=true.
