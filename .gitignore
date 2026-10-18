@@ -12,3 +12,5 @@ __pycache__/
 *service-account*.json
 
 .tools/
+tmp/
+output/

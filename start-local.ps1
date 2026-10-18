@@ -7,6 +7,5 @@ if ($Service -eq 'backend') {
     $runtimeRoot=Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies'
     if (-not (Get-Command node -ErrorAction SilentlyContinue)) { $env:PATH=(Join-Path $runtimeRoot 'node\bin')+';'+$env:PATH }
     Set-Location frontend
-    if (Get-Command pnpm -ErrorAction SilentlyContinue) { pnpm dev } else { & (Join-Path $runtimeRoot 'bin\fallback\pnpm.cmd') dev }
+    & node node_modules/vite/bin/vite.js --host 127.0.0.1
 }
-

@@ -4,6 +4,21 @@
 
 A local investigation workspace built with React, Vite, Tailwind, React Flow, FastAPI, Pydantic, NetworkX, and SQLite. All included scenarios are explicitly synthetic.
 
+## Live prototype
+
+Open **https://corvq-493d5.web.app**. Load a synthetic sample, then click
+**Generate Gemini report**. The hosted prototype uses Firebase AI Logic with
+App Check protection and checks atomic report claims against source records.
+Cases and reports stay in browser memory and reset on reload. Uploads and
+counterfactual recalculation require the full backend.
+
+The Firebase project remains on Spark with billing disabled. Free model quotas
+can interrupt availability. See [the free prototype setup](docs/free-prototype.md)
+for architecture, validation evidence and deployment details.
+
+Build the hosted version with `cd frontend` followed by `pnpm install --frozen-lockfile`
+and `pnpm build:showcase`. The default build and local setup below use FastAPI.
+
 ## Run locally
 
 Use Python 3.11+ (3.12 recommended for optional ADK compatibility), Node.js 20.19+ and pnpm 10+.
@@ -67,7 +82,7 @@ $env:GEMINI_MODEL = 'gemini-3.8-flash'
 
 Restart the backend. The backend loads the root `.env` file automatically without overriding existing process environment variables. `.env.example` documents the supported settings. Never commit `.env`. Agents use a read-only backend evidence tool. ADK SequentialAgent coordinates investigation, relationship, policy and report agents. Pydantic validates the report; ProofGuard checks its structured atomic claims. No policy documents are included, and the policy agent must state that limitation. Model and prompt versions, latency, available token usage and errors are recorded. Cost is unavailable rather than estimated.
 
-**Live Gemini execution is unverified until authorized credentials and the optional ADK dependencies are configured. Calling Gemini can incur charges.** No billable services were enabled by this project setup.
+The public prototype's single-request Firebase AI Logic workflow has been verified live. The separate four-agent backend workflow still requires validation with the chosen credentials and quotas. Keep the hosted project unlinked from billing for the free-tier prototype.
 
 ## Tests
 
@@ -84,9 +99,9 @@ Tests cover both adapters, counterfactual recalculation, factual verification, v
 
 Development defaults to loopback and no authentication. Set `CORVQ_API_TOKEN` for authenticated API access; the UI's Access settings stores it in sessionStorage. This is a shared development token, not production identity or RBAC. Analyst names are self-reported. Cloud Run fails closed unless Firebase authentication and Firestore storage are selected.
 
-A repository protocol supports SQLite and an explicitly selected Firestore implementation. See [production setup](docs/production-setup.md). **Firebase identity/RBAC and Firestore storage adapters are implemented and tested offline; live cloud configuration is pending.** Tamper-resistant audit storage, rate limiting, cross-document atomic auditing, production evaluation and hosted deployment remain incomplete. Current audit storage is suitable for a local MVP, not regulated production. Revision checks reject conflicting concurrent updates with HTTP 409.
+A repository protocol supports SQLite and an explicitly selected Firestore implementation. See [production setup](docs/production-setup.md). Firebase identity and scoped Firestore persistence have been exercised locally against the configured cloud project. The public prototype uses session memory instead. Tamper-resistant audit storage, cross-document atomic auditing, production evaluation and full backend deployment remain incomplete. Process-local request limits are implemented. Current audit storage is suitable for a local MVP, not regulated production. Revision checks reject conflicting concurrent updates with HTTP 409.
 
-The Dockerfile and Firebase configuration prepare deployment without enabling services. Supply a Firebase project and a backend route before deploying. Use authenticated Cloud Run access, Secret Manager, configured CORS, durable storage and budget controls. SQLite is rejected on Cloud Run; configure the provided Firestore adapter for hosted persistence. No public GitHub remote, cloud resources or hackathon deliverables have been created.
+The Dockerfile and default Firebase configuration prepare the full backend deployment. Supply a backend route before using that Firebase configuration. Use Firebase user authorization, managed secrets, configured CORS, durable storage and cost controls. SQLite is rejected on Cloud Run. The public prototype uses a separate static-only Hosting release through `scripts/deploy_showcase.py`, which refuses projects with billing enabled. The public source repository is https://github.com/traj1152-wq/CORVQ.
 
 See `docs/architecture.md` for module boundaries and next steps.
 

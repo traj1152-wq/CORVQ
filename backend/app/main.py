@@ -9,6 +9,7 @@ load_dotenv(Path(__file__).resolve().parents[2] / '.env', override=False)
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 from .models import AnalyzeRequest, Claim, CounterfactualRequest, ReviewRequest, Record, Industry
 from .core import investigate
 from .database import SQLiteRepository, ActorRepository
@@ -140,11 +141,19 @@ async def ai(identifier: str, repo=Depends(repository)):
     if not configuration()['configured']:
         raise HTTPException(503, 'Gemini unconfigured: install requirements-ai.txt and set GEMINI_API_KEY')
     try:
-        output = await asyncio.wait_for(run_agents(case), timeout=180)
+        output = await asyncio.wait_for(run_agents(case), timeout=300)
     except Exception as exc:
         log.error('AI investigation failed: %s', type(exc).__name__)
-        repo.audit(identifier, 'ai_error', {'prompt_version': configuration()['prompt_version']})
-        raise HTTPException(502, 'AI workflow failed. Check backend logs; no AI report was saved.')
+        code=getattr(exc,'code',None)
+        reason='timeout' if isinstance(exc, asyncio.TimeoutError) else 'provider_busy' if code in (500,502,503,504) else 'quota' if code==429 else 'authentication' if code in (401,403) else 'invalid_output'
+        repo.audit(identifier, 'ai_error', {'prompt_version': configuration()['prompt_version'],'reason':reason,'error_type':type(exc).__name__,'provider_status':code if isinstance(code,int) else None})
+        status=504 if reason=='timeout' else 503 if reason=='provider_busy' else 429 if reason=='quota' else 502
+        detail={'timeout':'Gemini timed out. Retry the investigation; no AI report was saved.',
+                'provider_busy':'Gemini is temporarily busy after limited retries. Try again shortly; no AI report was saved.',
+                'quota':'Gemini quota is exhausted. Check your project quota before retrying; no AI report was saved.',
+                'authentication':'Gemini rejected the backend credentials. Check API key permissions.',
+                'invalid_output':'Gemini returned an incomplete or invalid report. No AI report was saved.'}[reason]
+        raise HTTPException(status,detail)
     case['ai'] = output
     case['claims'].extend(verify(Claim(**c), [Record(**r) for r in case['records']]) for c in output['claims'])
     repo.save(case)
@@ -157,5 +166,7 @@ def report(identifier: str, repo=Depends(repository)):
     case['audit'] = repo.events(identifier)
     return Response(json.dumps(case, indent=2), media_type='application/json', headers={'Content-Disposition': f'attachment; filename="corvq-{identifier}.json"'})
 
-
-
+# Serve the built client after API routes, using the same Cloud Run origin.
+client_dist = Path(__file__).resolve().parents[2] / 'frontend' / 'dist'
+if client_dist.is_dir():
+    app.mount('/', StaticFiles(directory=client_dist, html=True), name='frontend')

@@ -118,3 +118,18 @@ def test_ai_endpoint_verifies_generated_claims(client,monkeypatch):
     assert result.status_code==200
     assert [c['status'] for c in result.json()['claims']]==['verified','unsupported']
     assert client.get(f"/api/investigations/{case['id']}/audit").json()[-1]['action']=='ai_completed'
+
+@pytest.mark.parametrize('provider_code,status,reason',[(503,503,'provider_busy'),(429,429,'quota'),(403,502,'authentication')])
+def test_ai_errors_have_actionable_messages_and_audit(client,monkeypatch,provider_code,status,reason):
+    import backend.app.main as main
+    monkeypatch.setattr(main,'configuration',lambda:{'configured':True,'prompt_version':'test'})
+    class ProviderError(Exception):code=provider_code
+    async def failed(case):raise ProviderError('private provider details must not reach the browser')
+    monkeypatch.setattr(main,'run_agents',failed)
+    case=create(client)
+    result=client.post(f"/api/investigations/{case['id']}/ai")
+    assert result.status_code==status
+    assert 'private provider details' not in result.text
+    events=client.get(f"/api/investigations/{case['id']}/audit").json()
+    assert events[-1]['detail']['reason']==reason
+    assert 'ai' not in client.get(f"/api/investigations/{case['id']}").json()

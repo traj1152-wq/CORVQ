@@ -1,5 +1,7 @@
 import {accessToken} from './auth.js';
+import {showcaseRequest} from './showcase.js';
 export async function request(path, options = {}) {
+  if (import.meta.env?.VITE_SHOWCASE === 'true') return showcaseRequest(path, options);
   const token = await accessToken();
   let response;
   try {
