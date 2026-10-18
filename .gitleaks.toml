@@ -1,0 +1,13 @@
+title = "CORVQ secret scanning"
+[extend]
+useDefault = true
+
+# Firebase web configuration identifies the public client, not a Gemini credential.
+# App Check protects AI Logic requests. Match this exact public value AND path.
+[[allowlists]]
+description = "Exact public Firebase client key in its SDK configuration"
+targetRules = ["generic-api-key", "gcp-api-key"]
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^frontend/src/firebase-public\.json$''']
+regexes = ['''^A[I]zaSyAVDhNBzF6sUDX2zpvyeSDyGzERCsFhv5E$''']

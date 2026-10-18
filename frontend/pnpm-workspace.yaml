@@ -3,3 +3,5 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - '@firebase/util'
   - protobufjs
+overrides:
+  '@grpc/grpc-js': '^1.13.6'
